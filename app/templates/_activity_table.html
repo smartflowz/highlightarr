@@ -1,0 +1,14 @@
+<table class="responsive">
+  <thead><tr><th>Time</th><th>Workflow</th><th>Source</th><th>Status</th><th>Detail</th></tr></thead>
+  <tbody>
+  {% for h in activity %}
+  <tr>
+    <td data-label="Time">{{ (h.created_at | localtime).strftime('%Y-%m-%d %H:%M') }}</td>
+    <td data-label="Workflow">{{ h.workflow_name or '—' }}</td>
+    <td data-label="Source"><code title="{{ h.source_path }}">{{ h.source_path.split('/')[-1] }}</code></td>
+    <td data-label="Status">{% if h.status == 'success' %}<span class="badge ok">success</span>{% else %}<span class="badge err">failed</span>{% endif %}</td>
+    <td data-label="Detail" class="detail">{{ h.message }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>

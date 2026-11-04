@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %} · {{ 'Edit' if profile_id else 'New' }} profile{% endblock %}
+{% block content %}
+<h1>{{ 'Edit profile' if profile_id else 'New profile' }}</h1>
+
+{% include "_errors.html" %}
+<form method="post" action="/profiles/save" class="form">
+  {% if profile_id %}<input type="hidden" name="id" value="{{ profile_id }}">{% endif %}
+
+  <label>Name
+    <input type="text" name="name" value="{{ values.name }}" required maxlength="100" placeholder="e.g. Racing, Soccer, Movie, News">
+  </label>
+
+  <label>Target length (fraction of source, e.g. 0.25 = quarter length)
+    <input type="number" step="0.01" min="0.01" max="1" name="target_fraction" value="{{ values.target_fraction }}">
+  </label>
+
+  <div class="grid2">
+    <label>Skip at start (seconds) — pre-show / pre-race
+      <input type="number" min="0" name="event_start_sec" value="{{ values.event_start_sec }}">
+    </label>
+    <label>Trim at end (seconds) — post-show / podium
+      <input type="number" min="0" name="end_trim_sec" value="{{ values.end_trim_sec }}">
+    </label>
+    <label>Always keep after start (seconds)
+      <input type="number" min="0" name="intro_sec" value="{{ values.intro_sec }}">
+    </label>
+    <label>Always keep before end (seconds)
+      <input type="number" min="0" name="outro_sec" value="{{ values.outro_sec }}">
+    </label>
+    <label>Clip padding before a moment (seconds)
+      <input type="number" min="0" name="clip_before" value="{{ values.clip_before }}">
+    </label>
+    <label>Clip padding after a moment (seconds)
+      <input type="number" min="0" name="clip_after" value="{{ values.clip_after }}">
+    </label>
+    <label>Minimum gap between moments (seconds)
+      <input type="number" min="0" name="min_separation" value="{{ values.min_separation }}">
+    </label>
+    <label>Audio language preference (comma-separated, in order)
+      <input type="text" name="languages" value="{{ values.languages }}" placeholder="nld,eng">
+    </label>
+  </div>
+
+  <label class="checkbox">
+    <input type="checkbox" name="delete_original" {{ 'checked' if values.delete_original else '' }}>
+    Delete the original after a valid highlight is produced
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" name="reencode" data-shows="encode-opts" {{ 'checked' if values.reencode else '' }}>
+    Re-encode (clean cuts, slower) instead of stream copy (fast, cuts snap to keyframes)
+  </label>
+
+  <div class="grid2" id="encode-opts">
+    <label>Encoder
+      <select name="video_encoder">
+        <option value="software" {{ 'selected' if values.video_encoder != 'hardware' else '' }}>Software (x264) – works everywhere</option>
+        <option value="hardware" {{ 'selected' if values.video_encoder == 'hardware' else '' }}>Hardware (GPU, VAAPI) – much faster</option>
+      </select>
+      <span class="hint">
+        Hardware encoding uses the GPU in your machine. If it is not available, software is used instead.
+        {% if hardware[0] %}A GPU encoder was found on this machine.{% else %}Not available right now: {{ hardware[1] }}.{% endif %}
+      </span>
+    </label>
+    <label>Encoding speed
+      <select name="video_preset">
+        {% for p, text in [('ultrafast', 'Fastest, biggest file'), ('superfast', 'Very quick'), ('veryfast', 'Fast (default)'), ('faster', 'Balanced'), ('fast', 'Slower, smaller file'), ('medium', 'Slowest, smallest file')] %}
+        <option value="{{ p }}" {{ 'selected' if values.video_preset == p else '' }}>{{ text }} ({{ p }})</option>
+        {% endfor %}
+      </select>
+      <span class="hint">The main lever for how long software encoding takes. Not used by the hardware encoder.</span>
+    </label>
+    <label>Video quality (CRF)
+      <input type="number" min="15" max="30" name="video_crf" value="{{ values.video_crf }}">
+      <span class="hint">Lower is better quality and a bigger file. 18–23 is typical; 21 is the default. The hardware encoder uses it as its quantizer.</span>
+    </label>
+  </div>
+
+  <div class="actions">
+    <button type="submit" class="btn">Save</button>
+    <a href="/profiles" class="btn secondary">Cancel</a>
+  </div>
+</form>
+{% endblock %}

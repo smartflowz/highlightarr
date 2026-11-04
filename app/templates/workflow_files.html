@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %} · Files{% endblock %}
+{% block content %}
+{% set failed = report.files | selectattr('state', 'equalto', 'failed') | list %}
+{% set badge = {'processing': 'run', 'ready': 'ok', 'waiting': 'wait', 'done': 'ok', 'failed': 'err', 'skipped': 'off'} %}
+<h1>Files</h1>
+<p class="sub">{{ workflow.name }} · source folder <code>{{ workflow.source_path }}</code>{{ '' if workflow.recursive else ' (subfolders are not scanned)' }}</p>
+
+{% for note in report.notes %}<div class="notice warn">{{ note }}</div>{% endfor %}
+{% if report.scan_note %}<p class="hint">{{ report.scan_note }}</p>{% endif %}
+<div class="actions">
+  <a class="btn secondary" href="/workflows/{{ workflow.id }}/files">Refresh</a>
+  <a class="btn secondary" href="/workflows/{{ workflow.id }}/edit">Edit workflow</a>
+  {% if failed %}<form method="post" action="/workflows/{{ workflow.id }}/files/retry"><button type="submit" class="btn">Retry all failed ({{ failed | length }})</button></form>{% endif %}
+</div>
+
+{% if report.files %}
+<table class="responsive">
+  <thead><tr><th>File</th><th>Status</th><th>Why</th><th></th></tr></thead>
+  <tbody>
+  {% for f in report.files %}
+  <tr>
+    <td class="primary"><code>{{ f.name }}</code></td>
+    <td data-label="Status"><span class="badge {{ badge[f.state] }}">{{ f.state }}</span></td>
+    <td data-label="Why" class="detail">{{ f.reason }}</td>
+    <td class="row-actions">{% if f.state == 'failed' %}<form method="post" action="/workflows/{{ workflow.id }}/files/retry" class="inline"><input type="hidden" name="name" value="{{ f.name }}"><button type="submit" class="link-btn retry">Retry</button></form>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% elif report.folder_ok %}
+<p class="empty">No video files found in this folder.</p>
+{% endif %}
+
+<p class="hint">
+  Only video files with a supported extension ({{ supported_formats }}) are processed, one at a time. Hidden files, folders that start with "." or "@" or are named "#recycle",
+  and files whose name ends with "{{ ' - Highlights' }}" are skipped.
+  {% if report.ignored %}{{ report.ignored }} other file{{ '' if report.ignored == 1 else 's' }} (subtitles, images and so on) {{ 'is' if report.ignored == 1 else 'are' }} not listed.{% endif %}
+  {% if report.more %}{{ report.more }} more file{{ '' if report.more == 1 else 's' }} {{ 'is' if report.more == 1 else 'are' }} not shown.{% endif %}
+</p>
+<p class="hint">The app does not remember what it has handled across a restart: afterwards, files that failed are tried again, and files without a highlights file are processed again.</p>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %} · Profiles{% endblock %}
+{% block content %}
+<h1>Profiles</h1>
+<p class="sub">A profile is a reusable set of cutting rules — one per media type.</p>
+{% if error == 'in_use' %}<div class="notice err">That profile is used by a workflow. Change or delete those workflows first.</div>{% endif %}
+{% if added > 0 %}<div class="notice ok">Added {{ added }} default profile{{ '' if added == 1 else 's' }}.</div>{% endif %}
+<div class="actions">
+  <a class="btn" href="/profiles/new">+ Add profile</a>
+  {% if missing_defaults %}<form method="post" action="/profiles/defaults"><button type="submit" class="btn secondary" title="Missing: {{ missing_defaults | join(', ') }}">Add default profiles ({{ missing_defaults | length }})</button></form>{% endif %}
+</div>
+
+<table class="responsive">
+  <thead><tr><th>Name</th><th>Target length</th><th>Languages</th><th>Cutting</th><th>Delete original</th><th>Used by</th><th></th></tr></thead>
+  <tbody>
+  {% for p in profiles %}
+  <tr>
+    <td class="primary">{{ p.name }}</td>
+    <td data-label="Target length">{{ (p.target_fraction * 100) | round | int }}%</td>
+    <td data-label="Languages">{{ p.languages }}</td>
+    <td data-label="Cutting">{{ ('re-encode (hardware)' if p.video_encoder == 'hardware' else 're-encode') if p.reencode else 'stream copy' }}</td>
+    <td data-label="Delete original">{{ 'yes' if p.delete_original else 'no' }}</td>
+    <td data-label="Used by">{{ p.workflows | length }} workflow{{ '' if p.workflows | length == 1 else 's' }}</td>
+    <td class="row-actions">
+      <a href="/profiles/{{ p.id }}/edit">Edit</a>
+      {% if not p.workflows %}
+      <form method="post" action="/profiles/{{ p.id }}/delete" class="inline" data-confirm="Delete profile {{ p.name }}?">
+        <button type="submit" class="link-btn">Delete</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

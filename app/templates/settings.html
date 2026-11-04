@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %} · Settings{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+<p class="sub">General settings that apply to every workflow. Changes take effect without a restart.</p>
+
+{% if saved %}<div class="notice ok">Settings saved.</div>{% endif %}
+{% include "_errors.html" %}
+
+<form method="post" action="/settings/save" class="form">
+  {% for r in rows %}
+  {% if loop.first or r.spec.group != rows[loop.index0 - 1].spec.group %}<h2 class="group">{{ r.spec.group }}</h2>{% endif %}
+  <label>{{ r.spec.label }}{{ r.spec.suffix }}
+    <input type="number" name="{{ r.key }}" min="{{ r.spec.minimum }}" max="{{ r.spec.maximum }}" step="1"
+           value="{{ submitted[r.key] if submitted else (r.value if r.overridden else '') }}"
+           placeholder="{{ r.spec.format(r.spec.default) }}">
+    <span class="hint">
+      {{ r.spec.help }}
+      Currently <strong>{{ r.spec.format(r.value) }}</strong>{% if r.overridden %} (custom){% else %} (container default){% endif %}.
+      Leave blank to use the container default ({{ r.spec.format(r.spec.default) }}).
+    </span>
+  </label>
+  {% endfor %}
+
+  <div class="actions">
+    <button type="submit" class="btn">Save</button>
+    <a href="/settings" class="btn secondary">Cancel</a>
+  </div>
+</form>
+{% endblock %}

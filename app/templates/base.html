@@ -1,0 +1,35 @@
+{% macro nav(href, label, active, icon) -%}
+<a href="{{ href }}" class="{{ 'active' if active else '' }}"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">{{ icon | safe }}</svg><span>{{ label }}</span></a>
+{%- endmacro %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f2124">
+  <title>Highlightarr{% block title %}{% endblock %}</title>
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/static/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/static/icon-180.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="layout">
+    <header class="topbar"><img src="/static/icon.svg" alt="" width="26" height="26"> Highlightarr</header>
+    <nav class="sidebar">
+      <div class="brand"><img src="/static/icon.svg" alt="" width="28" height="28"> Highlightarr</div>
+      {{ nav("/activity", "Activity", request.url.path.startswith("/activity"), '<path d="M3 12h4l3-8 4 16 3-8h4"/>') }}
+      {{ nav("/profiles", "Profiles", request.url.path.startswith("/profiles"), '<path d="M4 7h16M4 12h16M4 17h16"/><circle class="knob" cx="9" cy="7" r="2"/><circle class="knob" cx="15" cy="12" r="2"/><circle class="knob" cx="8" cy="17" r="2"/>') }}
+      {{ nav("/workflows", "Workflows", request.url.path.startswith("/workflows"), '<rect x="2.5" y="8" width="6" height="8" rx="1.5"/><rect x="15.5" y="8" width="6" height="8" rx="1.5"/><path d="M10 12h4M12.5 9.5 15 12l-2.5 2.5"/>') }}
+      {{ nav("/logs", "Logs", request.url.path.startswith("/logs"), '<path d="M6 3h9l4 4v14H6z"/><path d="M9 8h3M9 12h7M9 16h7"/>') }}
+      {{ nav("/settings", "Settings", request.url.path.startswith("/settings"), '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3.1 2.9"/>') }}
+      {{ nav("/about", "About", request.url.path.startswith("/about"), '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>') }}
+    </nav>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

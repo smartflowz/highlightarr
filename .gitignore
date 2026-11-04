@@ -1,0 +1,8 @@
+*.mkv
+*.part
+*.db
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/

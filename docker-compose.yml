@@ -1,0 +1,38 @@
+services:
+  highlightarr:
+    image: ghcr.io/smartflowz/highlightarr:latest
+    container_name: highlightarr
+    restart: unless-stopped
+    init: true
+    user: "1026:100"               # your user:group, from running `id`
+    ports:
+      - "9797:9797"          # host:container. To use another host port, change only the left number.
+    environment:
+      # Time zone for the times in Activity and in the logs (any name from the tz database).
+      - TZ=Europe/Amsterdam
+      # Defaults only: both can be changed from the Settings page in the GUI.
+      - POLL_SEC=60
+      - SETTLE_SEC=300
+      # Folders workflows may read from / write to, and that the Browse button
+      # lists (comma-separated container paths). Default: /media
+      # - MEDIA_ROOTS=/media
+      # Being gentle on the NAS. Defaults only: all four can be changed on the Settings page.
+      # - FFMPEG_NICE=10        # ffmpeg priority, 0 (normal) to 19 (lowest)
+      # - FFMPEG_THREADS=0      # 0 = every core, 1 = leave the rest of the CPU alone
+      # - PROCESS_FROM=22       # only start new files from this hour ...
+      # - PROCESS_UNTIL=7       # ... until this hour (local time); leave out for any time
+      # Hardware encoding (Intel GPU), see the README. Only if the defaults do not work:
+      # - VAAPI_DEVICE=/dev/dri/renderD128
+      # - LIBVA_DRIVER_NAME=i965    # the older Intel driver; the default is iHD
+    # Hardware encoding: give the container the GPU. Run `ls -ln /dev/dri` on the NAS first.
+    # If the container user cannot open renderD128, add the group that owns it.
+    # devices:
+    #   - /dev/dri:/dev/dri
+    # group_add:
+    #   - "937"                 # the numeric group id shown by `ls -ln /dev/dri`
+    volumes:
+      - /volume1/docker/highlightarr/config:/config
+      # Mount a broad media root once, then pick specific source/destination
+      # subfolders per workflow from the GUI — no redeploy needed to add
+      # a new workflow under an already-mounted root.
+      - /volume1/data/media:/media

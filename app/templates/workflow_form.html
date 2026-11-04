@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %} · {{ 'Edit' if workflow_id else 'New' }} workflow{% endblock %}
+{% block content %}
+<h1>{{ 'Edit workflow' if workflow_id else 'New workflow' }}</h1>
+{% if workflow_id %}<p class="sub"><a href="/workflows/{{ workflow_id }}/files">See which files in the source folder get picked up →</a></p>{% endif %}
+
+{% if not profiles %}
+<p class="empty">No profiles yet. <a href="/profiles/new">Create one first</a>.</p>
+{% else %}
+{% include "_errors.html" %}
+<form method="post" action="/workflows/save" class="form">
+  {% if workflow_id %}<input type="hidden" name="id" value="{{ workflow_id }}">{% endif %}
+
+  <label>Name
+    <input type="text" name="name" value="{{ values.name }}" required placeholder="e.g. Racing weekends">
+  </label>
+
+  <label>Profile
+    <select name="profile_id" required>
+      {% for p in profiles %}
+      <option value="{{ p.id }}" {{ 'selected' if (values.profile_id | int) == p.id else '' }}>{{ p.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Source folder (container path)
+    <div class="path-row">
+      <input type="text" name="source_path" value="{{ values.source_path }}" required placeholder="/media/sports/racing/incoming">
+      <button type="button" class="btn secondary browse-btn" data-for="source_path">Browse…</button>
+    </div>
+  </label>
+
+  <label>Destination folder (container path)
+    <div class="path-row">
+      <input type="text" name="dest_path" value="{{ values.dest_path }}" required placeholder="/media/sports/racing/highlights">
+      <button type="button" class="btn secondary browse-btn" data-for="dest_path">Browse…</button>
+    </div>
+    <span class="hint">May be the same as the source folder: the highlights are then saved next to the originals.</span>
+  </label>
+
+  <label class="checkbox">
+    <input type="checkbox" name="recursive" {{ 'checked' if values.recursive else '' }}>
+    Scan subfolders too
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" name="enabled" {{ 'checked' if values.enabled else '' }}>
+    Enabled
+  </label>
+
+  <div class="actions">
+    <button type="submit" class="btn">Save</button>
+    <a href="/workflows" class="btn secondary">Cancel</a>
+  </div>
+</form>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="/static/browse.js"></script>{% endblock %}

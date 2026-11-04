@@ -1,0 +1,5 @@
+<div id="now-processing" class="now" data-reload="1"{% if not current %} hidden{% endif %}>
+  <div class="now-head"><span class="pulse"></span><strong>Processing</strong> <code id="np-file">{{ current.file if current else '' }}</code></div>
+  <div class="now-meta"><span id="np-workflow">{{ current.workflow if current else '' }}</span> · <span id="np-stage">{{ current.stage if current else '' }}</span> · <span id="np-elapsed"></span></div>
+  <div class="bar"><div id="np-fill" class="fill"></div></div>
+</div>

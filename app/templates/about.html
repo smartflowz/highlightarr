@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %} · About{% endblock %}
+{% block content %}
+<h1>About</h1>
+<p class="sub">Versions and settings of this installation. Include them when you report a problem.</p>
+{% for section in sections %}
+<h2>{{ section.title }}</h2>
+<table class="info">
+  <tbody>
+  {% for row in section.rows %}
+  <tr><td>{{ row.label }}</td><td>{% if row.ok %}{{ row.value }}{% else %}<span class="badge err">{{ row.value }}</span>{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+{% endblock %}

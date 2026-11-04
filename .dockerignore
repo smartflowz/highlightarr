@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+.ruff_cache
+.pytest_cache
+**/__pycache__
+tests
+docs
+*.md
+pyproject.toml
+requirements-dev.txt
+docker-compose.yml
+*.db
+*.mkv
+*.part

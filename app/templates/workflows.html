@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %} · Workflows{% endblock %}
+{% block content %}
+<h1>Workflows</h1>
+<p class="sub">A workflow picks up files from a source folder, cuts the highlights using a profile, and writes the result to a destination folder.</p>
+<a class="btn" href="/workflows/new">+ Add workflow</a>
+
+<table class="responsive">
+  <thead><tr><th>Name</th><th>Profile</th><th>Source</th><th>Destination</th><th>Recursive</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for w in workflows %}
+  <tr>
+    <td class="primary">{{ w.name }}</td>
+    <td data-label="Profile">{{ w.profile.name if w.profile else '—' }}</td>
+    <td data-label="Source"><code>{{ w.source_path }}</code></td>
+    <td data-label="Destination"><code>{{ w.dest_path }}</code></td>
+    <td data-label="Recursive">{{ 'yes' if w.recursive else 'no' }}</td>
+    <td data-label="Status">{% if w.enabled %}<span class="badge ok">enabled</span>{% else %}<span class="badge off">disabled</span>{% endif %}</td>
+    <td class="row-actions">
+      <a href="/workflows/{{ w.id }}/files">Files</a>
+      <a href="/workflows/{{ w.id }}/edit">Edit</a>
+      <form method="post" action="/workflows/{{ w.id }}/delete" class="inline" data-confirm="Delete workflow {{ w.name }}? This does not delete any files.">
+        <button type="submit" class="link-btn">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

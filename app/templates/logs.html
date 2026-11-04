@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %} · Logs{% endblock %}
+{% block content %}
+<h1>Logs</h1>
+<p class="sub">What Highlightarr did and why things failed, newest first. Times are in the container's time zone.</p>
+
+{% if not view.enabled %}
+<div class="notice warn">Writing a log file is switched off (LOG_PATH is empty), so there is nothing to show here. The same messages are in the container log.</div>
+{% else %}
+<form method="get" action="/logs" class="logbar">
+  <select name="level" aria-label="Level">
+    <option value="all" {{ 'selected' if level == 'all' else '' }}>Everything</option>
+    <option value="warning" {{ 'selected' if level == 'warning' else '' }}>Warnings and errors</option>
+    <option value="error" {{ 'selected' if level == 'error' else '' }}>Errors only</option>
+  </select>
+  <input type="search" name="q" value="{{ q }}" placeholder="Search" aria-label="Search">
+  <select name="lines" aria-label="Number of entries">
+    {% for n in line_choices %}<option value="{{ n }}" {{ 'selected' if lines == n else '' }}>{{ n }} entries</option>{% endfor %}
+  </select>
+  <button type="submit" class="btn">Show</button>
+</form>
+<div class="logbar2">
+  <label class="checkbox"><input type="checkbox" data-autorefresh> Refresh every 5 seconds</label>
+  <a class="btn secondary" href="/logs/download">Download</a>
+</div>
+
+<p class="hint">
+  Showing {{ view.entries | length }} of {{ view.matched }} matching entries ({{ view.total }} in the log, {{ (view.size / 1024) | round(0) | int }} KB on disk).
+</p>
+
+{% if view.entries %}
+<div class="log">
+  {% for e in view.entries %}
+  <div class="log-entry {{ e.level | lower }}">
+    <div class="log-meta">
+      <span class="log-time">{{ e.date }} {{ e.time }}</span>
+      <span class="badge {{ 'err' if e.level in ('ERROR', 'CRITICAL') else ('wait' if e.level == 'WARNING' else 'off') }}">{{ e.level | lower }}</span>
+      <span class="log-name">{{ e.logger.replace('highlightarr.', '') }}</span>
+    </div>
+    <pre class="log-msg">{{ e.message }}</pre>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">{{ 'No entries match.' if view.total else 'The log is empty so far.' }}</p>
+{% endif %}
+{% endif %}
+{% endblock %}
